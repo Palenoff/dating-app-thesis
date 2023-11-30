@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dating App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .profile {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .profile img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+
+        .prompt {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .scale {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .navigation {
+                flex-direction: column;
+            }
+        }
+    </style>
+    <!-- JavaScript to redirect to profile/1 -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</head>
+<body>
+    <h1>Dating App</h1>
+    <div class="profile">
+        <p>Swipe left or right</p>
+        <div class="navigation">
+            <form method="post" action="{{ url_for('set_test_session') }}">
+                <label for="participant_id">Test Participant ID:</label>
+                <input type="text" id="participant_id" name="participant_id" required>
+                <button type="submit">Submit Test ID</button>
+            </form>
+            <form method="post" action="{{ url_for('create_participant') }}">
+                <label for="preferred_gender">Preferred gender:</label>
+                <select name="preferred_gender" id="preferred_gender">
+                    <option value="M">Male</option>
+                    <option value="F">Female</option>
+                  </select>
+                <button type="submit">Start</button>
+            </form>
+            <button id="start" onclick="startSwiping()">Start Swiping</button>
+        </div>
+    </div>
+</body>
+</html>

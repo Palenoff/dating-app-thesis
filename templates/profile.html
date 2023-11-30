@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+        <title>{{ data['name'] }} - Dating App</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 20px;
+            }
+    
+            .profile {
+                border: 1px solid #ddd;
+                padding: 20px;
+                margin-bottom: 20px;
+                text-align: center;
+                background-color: #f8f8f8;
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            }
+    
+            .profile img {
+                max-width: 100%;
+                height: auto;
+                border-radius: 10px;
+                margin-bottom: 20px;
+            }
+    
+            .bio {
+                margin-bottom: 20px;
+            }
+    
+            .prompt-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                margin-top: 20px;
+            }
+    
+            .prompt-card {
+                background-color: #fff;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                margin: 10px;
+                padding: 15px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                text-align: center;
+            }
+    
+            .scale {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                margin-top: 20px;
+            }
+    
+            .navigation {
+                display: flex;
+                justify-content: center;
+                margin-top: 20px;
+            }
+
+            .button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: rgb(162, 85, 182);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            }
+
+             /* Add a little margin between the buttons */
+           .button + .button {
+            margin-left: 10px;
+            }
+
+            /* Responsive Styles */
+            @media (max-width: 768px) {
+                .scale {
+                    flex-direction: column;
+                }
+            }
+
+            input[type="range"] {
+                width: 100%;
+                height: 20px;
+                -webkit-appearance: none;
+                margin: 10px 0;
+            }
+
+            input[type="range"]:focus {
+                outline: none;
+            }
+
+            input[type="range"]::-webkit-slider-runnable-track {
+                width: 100%;
+                height: 10px;
+                cursor: pointer;
+                background: #fff; /* Set the scale color to white */
+                border-radius: 5px;
+            }
+
+            input[type="range"]::-webkit-slider-thumb {
+                border: 1px solid rgb(162, 85, 182); /* Set the slider color to rgb(162, 85, 182) */
+                height: 20px;
+                width: 20px;
+                border-radius: 50%;
+                background: rgb(162, 85, 182);
+                cursor: pointer;
+                -webkit-appearance: none;
+                margin-top: -5px;
+            }
+
+            input[type="range"]:focus::-webkit-slider-runnable-track {
+                background: #ccc;
+            }
+
+
+        </style>
+    </head>
+<body>
+    <div class="profile" id="{{ data['current_n'] }}">
+        <div class="inner_profile">
+            <img src="{{ url_for('static', filename='images/' + data['picture'] ) }}" alt="{{ data['name'] }}">
+            <h1 align="left">{{ data['name'] }}, {{ data['age'] }}</h1>
+            <p class="bio">{{ data['bio'] }}</p>
+            <div class="prompt-container">
+                {% for prompt, response in data['prompts_and_responses'] %}
+                    <div class="prompt-card">
+                        <p><strong>{{ prompt }}</strong></p>
+                        <p>{{ response }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <form id="ratings" method="post" action="{{ url_for('submit_ratings') }}">
+            <div class="scale">
+                <label for="attractiveness">Attractiveness</label>
+                <input type="range" id="attractiveness" name="attractiveness" min="1" max="7" step="1" value="{{ data['attractiveness'] }}">
+                <label for="trustworthiness">Trustworthiness</label>
+                <input type="range" id="trustworthiness" name="trustworthiness" min="1" max="7" step="1" value="{{ data['trustworthiness'] }}">
+                <label for="authenticity">Authenticity</label>
+                <input type="range" id="authenticity" name="authenticity" min="1" max="7" step="1" value="{{ data['authenticity'] }}">
+                <!-- <button id="submit-ratings">Submit Ratings</button> -->
+            </div>        
+            <!-- <div class="navigation">
+                <button class="button" id="prev-button" onclick="go_back()">Previous</button>
+                <button class="button" id="next-button" onclick="go_forward()">Next</button>
+            </div> -->
+            <div class="navigation">
+                <input type="submit" name="to" class="button" id="prev-button" value="Previous">
+                <input type="submit" name="to" class="button" id="next-button" value="Next">
+            </div>
+        </form>    
+    </div>
+</body>
+</html>
