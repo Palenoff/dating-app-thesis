@@ -4,20 +4,14 @@ import random
 from dbmodel import db, Name, Bio, Prompt, Response, Profile, ProfilePromptsResponses, Participant
 
 app = Flask(__name__)
-import configparser
-
-# Create a ConfigParser object
-config = configparser.ConfigParser()
-
-# Read the configuration file
-config.read('config.ini')
+import os
 
 # Set the configuration values in your Flask app
-app.config['SQLALCHEMY_DATABASE_URI'] = config['AppConfig']['SQLALCHEMY_DATABASE_URI']
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = config['AppConfig'].getboolean('SQLALCHEMY_TRACK_MODIFICATIONS')
-app.secret_key = config['AppConfig']['SECRET_KEY']
-app.config['N_PROFILES'] = config['AppConfig'].getint('N_PROFILES')
-app.config['PROMPTS_MAX_OCCURENCE'] = config['AppConfig'].getint('PROMPTS_MAX_OCCURENCE')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URI")
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.secret_key = os.getenv("SECRET_KEY")
+app.config['N_PROFILES'] = int(os.getenv("N_PROFILES"))
+app.config['PROMPTS_MAX_OCCURENCE'] = int(os.getenv("PROMPTS_MAX_OCCURENCE"))
 
 db = db
 db.init_app(app)
