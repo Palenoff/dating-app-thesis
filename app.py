@@ -17,6 +17,7 @@ db = db
 db.init_app(app)
         
 def build_profiles_set(participant):
+    profiles = []
     connection = db.session.connection()
     names = pd.read_sql_table('names',connection, index_col='ID')
     bios = pd.read_sql_table('bios', connection, index_col='ID')
@@ -61,7 +62,10 @@ def build_profiles_set(participant):
             prompts_count = prompts_count + 1 #increasing prompts_count to process the next_prompt
         participant.profiles.append(profile_entry)
         db.session.add(profile_entry) #add profile instance to the db
+        profiles.append(profile_entry)
         condition_index[condition] = condition_index[condition] + 1 #increasing profiles counter (based on control condition)
+    db.session.commit()
+    session['profiles_id'] = [p.ID for p in profiles]
 
 
 
@@ -92,7 +96,6 @@ def create_participant():
             db.session.add(participant)
             db.session.commit()
             build_profiles_set(participant)
-            db.session.commit()
             session['participant_id'] = participant.ID
             session['current_n'] = 0
     except Exception as e:
@@ -112,7 +115,7 @@ def set_test_session():
 #@app.route('/get_profile', methods=['POST'])
 def get_profile():
     with app.app_context():
-        profile = db.session.get(Participant,session['participant_id']).profiles[session['current_n']]
+        profile = db.session.get(Profile,session['profiles_id'][session['current_n']])
         if profile == None:
             return None
         picture = profile.Picture
@@ -147,7 +150,7 @@ def profile():
 @app.route('/submit_ratings', methods=['POST'])
 def submit_ratings():
     with app.app_context():
-        profile = db.session.query(Profile).filter_by(ID_Participant=session['participant_id']).limit(1).offset(session['current_n']).first()
+        profile = db.session.get(Profile,session['profiles_id'][session['current_n']])
         profile.Attractiveness_score = int(request.form['attractiveness'])
         profile.Trustworthiness_score = int(request.form['trustworthiness'])
         profile.Authenticity_score = int(request.form['authenticity'])

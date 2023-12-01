@@ -6,7 +6,7 @@ class Bio(db.Model):
     __tablename__ = 'bios'
     ID = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.Text, nullable=False)
-    source = db.Column(db.String(255), nullable=False)
+    source = db.Column(db.String(2), nullable=False)
 
 class ProfilePromptsResponses(db.Model):
     __tablename__ = 'experiment_profile_prompts_responses'
@@ -75,6 +75,6 @@ class Response(db.Model):
     ID = db.Column(db.Integer, primary_key=True, nullable=False)
     ID_Prompt = db.Column(db.Integer, db.ForeignKey('prompts.ID'), nullable=False)
     text = db.Column(db.Text, nullable=False)
-    source = db.Column(db.Text, nullable=False)
+    source = db.Column(db.String(2), nullable=False)
 
 
