@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, session, redirect, url_for
 import pandas as pd
 import random
 from dbmodel import db, Name, Bio, Prompt, Response, Profile, ProfilePromptsResponses, Participant
+from datetime import datetime
 
 app = Flask(__name__)
 import os
@@ -151,31 +152,41 @@ def get_profile():
 
 @app.route('/profile', methods=['POST'])
 def profile():
-    return render_template('profile.html', data=get_profile())
+    participant = db.session.get(Participant,session['participant_id'])
+    if participant.Finished_at == None:
+        return render_template('profile.html', data=get_profile())
+    else:
+        return 'Sorry, the expirement has been finished. After the completion of the expirement all the data is unmodifiable.'
     # return render_template('profile.html', current_profile=profile, current_n=current_n, profile_name=name.name, bio=bio.text, age=age, prompts_and_responses=prs, num_profiles=N_profiles)
     # return "Profile not found!"
 
 @app.route('/submit_ratings', methods=['POST'])
 def submit_ratings():
     with app.app_context():
-        profile = db.session.get(Profile,session['profiles_id'][session['current_n']])
-        profile.Attractiveness_score = int(request.form['attractiveness'])
-        profile.Trustworthiness_score = int(request.form['trustworthiness'])
-        profile.Authenticity_score = int(request.form['authenticity'])
-        db.session.commit()
+        participant = db.session.get(Participant,session['participant_id'])
+        if participant.Finished_at == None:
+            profile = db.session.get(Profile,session['profiles_id'][session['current_n']])
+            profile.Attractiveness_score = int(request.form['attractiveness'])
+            profile.Trustworthiness_score = int(request.form['trustworthiness'])
+            profile.Authenticity_score = int(request.form['authenticity'])
+            db.session.commit()
+        else:
+            return 'Sorry, the expirement has been finished. After the completion of the expirement all the data is unmodifiable.'
     # Do something with the ratings (store in a database, perform analysis, etc.)
-    if request.form['to'] == 'Next':
-        if session['current_n'] < app.config['N_PROFILES'] - 1:
-            session['current_n'] = session['current_n'] + 1
-            return redirect(url_for('profile'), code=307) 
-        else:
-            return render_template('end.html')
-    elif request.form['to'] == 'Previous':
-        if session['current_n'] > 0:
-            session['current_n'] = session['current_n'] - 1
-            return redirect(url_for('profile'), code=307)
-        else:
-            return redirect(url_for('index'))
+        if request.form['to'] == 'Next':
+            if session['current_n'] < app.config['N_PROFILES'] - 1:
+                session['current_n'] = session['current_n'] + 1
+                return redirect(url_for('profile'), code=307) 
+            else:
+                participant.Finished_at = datetime.utcnow()
+                db.session.commit()
+                return render_template('end.html')
+        elif request.form['to'] == 'Previous':
+            if session['current_n'] > 0:
+                session['current_n'] = session['current_n'] - 1
+                return redirect(url_for('profile'), code=307)
+            else:
+                return redirect(url_for('index'))
 
 
 if __name__ == '__main__':

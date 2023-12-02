@@ -56,6 +56,7 @@ class Participant(db.Model):
     Frequency_use = db.Column(db.Text)
     Goals = db.Column(db.Text)
     Most_successful_experience = db.Column(db.Text)
+    Finished_at = db.Column(db.DateTime)
 
 
 
