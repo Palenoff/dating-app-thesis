@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <title>Participant data - Dating App</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 20px;
+            background-color: #f8f8f8;
+        }
+
+        .registration-form {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            background-color: #f8f8f8;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .registration-form h1 {
+            color: rgb(162, 85, 182);
+        }
+
+        .registration-form label {
+            display: block;
+            margin: 10px 0 5px;
+            text-align: left;
+            color: rgb(162, 85, 182);
+        }
+
+        .registration-form input,
+        .registration-form select,
+        .registration-form textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box; /* Ensure padding and border are included in the width */
+        }
+
+        .registration-form button {
+            width: calc(100% - 20px);
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: rgb(162, 85, 182);
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .registration-form button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .registration-form input,
+            .registration-form select,
+            .registration-form textarea,
+            .registration-form button {
+                width: 100%;
+                margin-right: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="registration-form">
+        <h1>User Registration</h1>
+        <form method="post" action="{{ url_for('create_participant') }}">
+            <label for="age">Your Age</label>
+            <input id="age" name="age" oninput="inputNumberAbs()" required>
+
+            <label for="gender">Your Gender</label>
+            <select id="gender" name="gender" required>
+                <option value="" disabled selected>Select Your Gender</option>
+                <option value="M">Male</option>
+                <option value="F">Female</option>
+                <option value="O">Other</option>
+            </select>
+
+            <label for="preferred_gender">Preferred Gender</label>
+            <select id="preferred_gender" name="preferred_gender" required>
+                <option value="" disabled selected>Select Preferred Gender</option>
+                <option value="M">Male</option>
+                <option value="F">Female</option>
+            </select>
+
+            <label for="education_level">Your Education Level</label>
+            <select id="education_level" name="education_level" required>
+                <option value="" disabled selected>Select Your Education Level</option>
+                <option value="S">High School</option>
+                <option value="C">Some College</option>
+                <option value="A">Associate Degree</option>
+                <option value="B">Bachelor's Degree</option>
+                <option value="M">Master's Degree</option>
+                <option value="D">Doctoral Degree</option>
+                <!-- Add more options as needed -->
+            </select>
+            <label for="education_field">Field of Education</label>
+            <input type="text" id="education_field" name="education_field" maxlength="100" required>
+            <label for="relationship_status">Your Relationship Status</label>
+            <select id="relationship_status" name="relationship_status" required>
+                <option value="" disabled selected>Select Your Relationship Status</option>
+                <option value="S">Single</option>
+                <option value="R">In a Relationship</option>
+                <option value="C">It's Complicated</option>
+                <!-- Add more options as needed -->
+            </select>
+
+            <label for="duration">How long have you been using online dating apps?</label>
+            <input type="text" id="duration" name="duration" required>
+
+            <label for="frequency">How often do you use online dating apps (open an app)?</label>
+            <input type="text" id="frequency" name="frequency" required>
+
+            <label for="goals">What are you using online dating apps for?</label>
+            <input type="text" id="goals" name="goals" required>
+
+            <label for="online_dating_experience">Describe your most successful online dating experience (1-2 sentences)</label>
+            <textarea id="online_dating_experience" name="online_dating_experience" rows="4" required></textarea>
+
+            <button type="submit">Start</button>
+        </form>
+    </div>
+</body>
+
+</html>

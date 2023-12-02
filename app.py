@@ -72,9 +72,17 @@ def build_profiles_set(participant):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-        return render_template('index.html')
+        return render_template('index.html', data={'N_profiles':app.config['N_PROFILES']})
 
     # Render the index template (this will be executed for both GET and POST requests)
+
+@app.route('/participant_data', methods=['POST'])
+def participant_data():
+    if request.form['consent'] == 'on':
+        return render_template('participant_data.html')
+    else:
+        return 'In order to proceed you must consent to the terms and condition. Please go to the main page of the survey to proceed.'
+
 
 @app.route('/create_participant', methods=['POST'])
 def create_participant():
