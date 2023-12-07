@@ -1,5 +1,7 @@
 let touchstartX = 0;
 let touchendX = 0;
+let touchstartY = 0;
+let touchendY = 0;
 const minSwipeDistance = 50; // Minimum distance for a swipe gesture
 
 function handleSwipe() {
@@ -8,10 +10,12 @@ function handleSwipe() {
     for (const profile of profiles) {
         profile.addEventListener('touchstart', function(event) {
             touchstartX = event.touches[0].clientX;
+            touchstartY = event.touches[0].clientY;
         });
 
         profile.addEventListener('touchend', function(event) {
             touchendX = event.changedTouches[0].clientX;
+            touchendY = event.changedTouches[0].clientY;
             handleGesture();
         });
     }
@@ -19,8 +23,9 @@ function handleSwipe() {
 
 function handleGesture() {
     const deltaX = touchendX - touchstartX;
+    const deltaY = touchendY - touchstartY;
 
-    if (Math.abs(deltaX) > minSwipeDistance) {
+    if (Math.abs(deltaX) > minSwipeDistance && Math.abs(deltaY) < Math.abs(deltaX)) {
         if (deltaX > 0) {
             submitRatings('Previous');
         } else {
