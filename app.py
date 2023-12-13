@@ -25,7 +25,7 @@ def build_profiles_set(participant):
     prompts = pd.read_sql_table('prompts', connection, index_col='ID')
     responses = pd.read_sql_table('responses', connection, index_col='ID')
     random.seed(participant.ID) #setting random seed to randomize pictures based on participant.ID
-    pictures = random.sample(range(0, 110), app.config['N_PROFILES']) if participant.Preferred_gender == 'F' else random.sample(range(111, 220), app.config['N_PROFILES']) #selecting pictures sample based on preferred_gender
+    pictures = random.sample(os.listdir(os.path.join(os.getcwd(),'static','images',participant.Preferred_gender)), app.config['N_PROFILES']) #selecting pictures sample based on preferred_gender
     bios_randomized = {"H" : bios[bios['source']=='H'].sample(n=app.config['N_PROFILES'] // 2,replace=False,random_state=participant.ID*74),"AI" : bios[bios['source']=='AI'].sample(n=app.config['N_PROFILES']//2,replace=False,random_state=participant.ID*23)} #selecting random subsets of bios for H and AI conditions (size N/2 each)
     h_ai_distribution = ['H','AI'] * (app.config['N_PROFILES'] // 2) 
     random.Random(participant.ID).shuffle(h_ai_distribution) #setting the order for profiles to show depending on condition
@@ -35,11 +35,7 @@ def build_profiles_set(participant):
         bio = int(bios_randomized[condition].iloc[condition_index[condition]].name) #select random bio from the preselected sample
         name = int(names[names['gender']==participant.Preferred_gender].sample(n=1,random_state=participant.ID*1000+sum(condition_index.values())).iloc[0].name) #select random name
         prompts_per_profile = prompts.sample(n=3, replace=False, random_state=participant.ID*1000+sum(condition_index.values())) #select random set of 3 prompts
-        picture = str(pictures[sum(condition_index.values())]) + '.jpg' #setting path to the picture file
-        if len(picture) == 6: #fix naming
-            picture = '0' + picture
-        elif len(picture) == 5: #fix naming
-            picture = '00' + picture
+        picture = f"{participant.Preferred_gender}/{str(pictures[sum(condition_index.values())])}" #setting path to the picture file
         profile_entry = Profile( #create profile instance for the db
                 ID_Bio=bio,
                 ID_Name=name,
