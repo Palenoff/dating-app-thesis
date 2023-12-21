@@ -8,25 +8,16 @@ class Bio(db.Model):
     text = db.Column(db.Text, nullable=False)
     source = db.Column(db.String(2), nullable=False)
 
-class ProfilePromptsResponses(db.Model):
-    __tablename__ = 'experiment_profile_prompts_responses'
-    ID = db.Column(db.Integer, primary_key=True, autoincrement=True, nullable=False)
-    ID_Prompt = db.Column(db.Integer, db.ForeignKey('prompts.ID'), nullable=False)
-    ID_Response = db.Column(db.Integer, db.ForeignKey('responses.ID'), nullable=False)
-    ID_Profile = db.Column(db.Integer, db.ForeignKey('experiment_profiles.ID'), nullable=False)
-    profile = db.relationship("Profile", backref=db.backref('prompts_and_responses'))
-    # prompt = db.relationship("Prompts", backref=db.backref('prompt'))
-    # response = db.relationship("Responses", backref=db.backref('response'))
-
-# profile_prompts_responses = db.Table('experiment_profile_prompts_responses', db.Model.metadata,
-#     db.Column('ID_Profile', db.Integer, db.ForeignKey('experiment_profiles.ID')),
-#     db.Column('ID_Prompt', db.Integer, db.ForeignKey('prompts.ID')),
-#     db.Column('ID_Response', db.Integer, db.ForeignKey('responses.ID'))
-# )
-
+# Association table
+profile_response_association = db.Table(
+    'profile_responses',
+    db.metadata,
+    db.Column('ID_Profile', db.Integer, db.ForeignKey('profiles.ID')),
+    db.Column('ID_Response', db.Integer, db.ForeignKey('responses.ID'))
+)
 
 class Profile(db.Model):
-    __tablename__ = 'experiment_profiles'
+    __tablename__ = 'profiles'
     ID = db.Column(db.Integer, primary_key=True, autoincrement=True, nullable=False)
     ID_Participant = db.Column(db.Integer, db.ForeignKey('participants.ID'), nullable=False)
     ID_Bio = db.Column(db.Integer, db.ForeignKey('bios.ID'), nullable=False)
@@ -38,7 +29,7 @@ class Profile(db.Model):
     Attractiveness_score = db.Column(db.Numeric)
     Trustworthiness_score = db.Column(db.Numeric)
     participant = db.relationship("Participant", backref=db.backref('profiles'))
-
+    responses = db.relationship('Response', secondary=profile_response_association, back_populates='profiles')
     #prompts =  db.relationship("Prompt", back_populates='profile')
     #response = db.relationship("Response", back_populates='profile')
 
@@ -77,5 +68,5 @@ class Response(db.Model):
     ID_Prompt = db.Column(db.Integer, db.ForeignKey('prompts.ID'), nullable=False)
     text = db.Column(db.Text, nullable=False)
     source = db.Column(db.String(2), nullable=False)
-
+    profiles = db.relationship('Profile', secondary=lambda: profile_response_association, back_populates='responses', cascade_backrefs=False)
 

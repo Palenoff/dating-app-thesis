@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, session, redirect, url_for
 import pandas as pd
 import random
-from dbmodel import db, Name, Bio, Prompt, Response, Profile, ProfilePromptsResponses, Participant
+from dbmodel import db, Name, Bio, Prompt, Response, Profile, Participant
 from datetime import datetime
 
 app = Flask(__name__)
@@ -26,7 +26,11 @@ def build_profiles_set(participant):
     responses = pd.read_sql_table('responses', connection, index_col='ID')
     random.seed(participant.ID) #setting random seed to randomize pictures based on participant.ID
     pictures = random.sample(os.listdir(os.path.join(os.getcwd(),'static','images',participant.Preferred_gender)), app.config['N_PROFILES']) #selecting pictures sample based on preferred_gender
-    bios_randomized = {"H" : bios[bios['source']=='H'].sample(n=app.config['N_PROFILES'] // 2,replace=False,random_state=participant.ID*74),"AI" : bios[bios['source']=='AI'].sample(n=app.config['N_PROFILES']//2,replace=False,random_state=participant.ID*23)} #selecting random subsets of bios for H and AI conditions (size N/2 each)
+    bios_groups = bios.groupby('source')
+    bios_randomized = {}
+    for g in bios_groups.groups:
+        bios_randomized[g] = bios_groups.get_group(g).sample(n=app.config['N_PROFILES'] // 2,replace=False,random_state=participant.ID*74*list(bios_groups.groups).index(g)) #selecting random subsets of bios for H and AI conditions (size N/2 each)
+    #.sample(n=app.config['N_PROFILES'] // 2,replace=False,random_state=participant.ID*74) #selecting random subsets of bios for H and AI conditions (size N/2 each)
     h_ai_distribution = ['H','AI'] * (app.config['N_PROFILES'] // 2) 
     random.Random(participant.ID).shuffle(h_ai_distribution) #setting the order for profiles to show depending on condition
     condition_index = {'H':0, 'AI':0} #counter
@@ -34,7 +38,6 @@ def build_profiles_set(participant):
     for condition in h_ai_distribution: #for each of the profiles
         bio = int(bios_randomized[condition].iloc[condition_index[condition]].name) #select random bio from the preselected sample
         name = int(names[names['gender']==participant.Preferred_gender].sample(n=1,random_state=participant.ID*1000+sum(condition_index.values())).iloc[0].name) #select random name
-        prompts_per_profile = prompts.sample(n=3, replace=False, random_state=participant.ID*1000+sum(condition_index.values())) #select random set of 3 prompts
         picture = f"{participant.Preferred_gender}/{str(pictures[sum(condition_index.values())])}" #setting path to the picture file
         profile_entry = Profile( #create profile instance for the db
                 ID_Bio=bio,
@@ -42,14 +45,16 @@ def build_profiles_set(participant):
                 Age=random.randrange(20, 30), #randomly select age between 20 and 30
                 Picture=picture,
                 Source=condition)
+        participant.profiles.append(profile_entry)
+        db.session.add(profile_entry) #add profile instance to the db
         prompts_count = 0
-        for p_id,_ in prompts_per_profile.iterrows(): #selecting prompts and responses. For each of the 3 prompts:
+        for p_id,_ in prompts.sample(n=3, replace=False, random_state=participant.ID*1000+sum(condition_index.values())).iterrows(): #from randomly selected set of 3 prompts selecting responses. For each of the 3 prompts:
             response_random_state=participant.ID*10000+sum(condition_index.values()) + prompts_count #setting random state for response selection
             response_per_prompt = responses[(responses['source'] == condition) & (responses['ID_Prompt'] == p_id)].sample(n=1, replace=False, random_state=participant.ID+1000+len(condition_index)+response_random_state) #choosing response that corresponds to the current prompt and matches the condition
             response_random_state = response_random_state + 1 #changing random_state to get next random response for the nexxt prompt
             responses.drop(response_per_prompt.iloc[0].name, inplace=True) #remove used response from the pool
-            profile_prompt_response_entry = ProfilePromptsResponses(ID_Prompt=p_id,ID_Response=int(response_per_prompt.iloc[0].name)) #binding the prompt and the response
-            profile_entry.prompts_and_responses.append(profile_prompt_response_entry) #binding the prompt and the response to the current profile
+            response = db.session.get(Response,int(response_per_prompt.iloc[0].name)) #binding the prompt and the response
+            profile_entry.responses.append(response) #binding the prompt and the response to the current profile
             try:
                 prompts_occurence[p_id] = prompts_occurence[p_id] + 1 #count actual occurence of the prompt
                 if prompts_occurence[p_id] <= app.config['PROMPTS_MAX_OCCURENCE']: #if exceeds max_occurence
@@ -57,8 +62,6 @@ def build_profiles_set(participant):
             except KeyError: #if it is the first occurence of the prompt
                 prompts_occurence[p_id] = 1 #then add it to the occurence control dictionary
             prompts_count = prompts_count + 1 #increasing prompts_count to process the next_prompt
-        participant.profiles.append(profile_entry)
-        db.session.add(profile_entry) #add profile instance to the db
         profiles.append(profile_entry)
         condition_index[condition] = condition_index[condition] + 1 #increasing profiles counter (based on control condition)
     db.session.commit()
@@ -109,13 +112,6 @@ def create_participant():
     return redirect(url_for('profile'), code=307)
     return 'profiles set built successfully'
 
-@app.route('/set_test_session',methods=['POST'])
-def set_test_session():
-    session['participant_id'] = int(request.form['participant_id'])
-    session['current_n'] = 0
-    return redirect(url_for('profile'), code=307)
-
-
 
 #@app.route('/get_profile', methods=['POST'])
 def get_profile():
@@ -127,11 +123,10 @@ def get_profile():
         name = db.session.get(Name,profile.ID_Name).name
         bio = db.session.get(Bio,profile.ID_Bio).text
         age = str(int(profile.Age))
-        prompts_and_responses = profile.prompts_and_responses
         prs = []
-        for pr in prompts_and_responses:
-            p = db.session.get(Prompt,pr.ID_Prompt).text
-            r = db.session.get(Response,pr.ID_Response).text
+        for response in profile.responses:
+            p = db.session.get(Prompt,response.ID_Prompt).text
+            r = response.text
             prs.append((p,r))
         attractiveness = 4 if profile.Attractiveness_score is None else int(profile.Attractiveness_score)
         trustworthiness = 4 if profile.Trustworthiness_score is None else int(profile.Trustworthiness_score)
