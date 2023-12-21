@@ -50,8 +50,7 @@ def build_profiles_set(participant):
         prompts_count = 0
         for p_id,_ in prompts.sample(n=3, replace=False, random_state=participant.ID*1000+sum(condition_index.values())).iterrows(): #from randomly selected set of 3 prompts selecting responses. For each of the 3 prompts:
             response_random_state=participant.ID*10000+sum(condition_index.values()) + prompts_count #setting random state for response selection
-            response_per_prompt = responses[(responses['source'] == condition) & (responses['ID_Prompt'] == p_id)].sample(n=1, replace=False, random_state=participant.ID+1000+len(condition_index)+response_random_state) #choosing response that corresponds to the current prompt and matches the condition
-            response_random_state = response_random_state + 1 #changing random_state to get next random response for the nexxt prompt
+            response_per_prompt = responses[(responses['source'] == condition) & (responses['ID_Prompt'] == p_id)].sample(n=1, replace=False, random_state=response_random_state) #choosing response that corresponds to the current prompt and matches the condition
             responses.drop(response_per_prompt.iloc[0].name, inplace=True) #remove used response from the pool
             response = db.session.get(Response,int(response_per_prompt.iloc[0].name)) #binding the prompt and the response
             profile_entry.responses.append(response) #binding the prompt and the response to the current profile
