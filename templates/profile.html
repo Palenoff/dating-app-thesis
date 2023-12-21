@@ -191,11 +191,11 @@
         </div>
         <form id="ratings" method="post" action="{{ url_for('submit_ratings') }}">
             <div class="scale">
-                <label for="attractiveness">Attractiveness</label>
+                <label for="attractiveness"><strong>Attractiveness</strong></label>
                 <input type="range" id="attractiveness" name="attractiveness" min="1" max="7" step="1" value="{{ data['attractiveness'] }}">
-                <label for="trustworthiness">Trustworthiness</label>
+                <label for="trustworthiness"><strong>Trustworthiness</strong></label>
                 <input type="range" id="trustworthiness" name="trustworthiness" min="1" max="7" step="1" value="{{ data['trustworthiness'] }}">
-                <label for="authenticity">Authenticity</label>
+                <label for="authenticity"><strong>Authenticity</strong></label>
                 <input type="range" id="authenticity" name="authenticity" min="1" max="7" step="1" value="{{ data['authenticity'] }}">
                 <!-- <button id="submit-ratings">Submit Ratings</button> -->
             </div>        
