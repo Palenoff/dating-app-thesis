@@ -28,9 +28,8 @@ def build_profiles_set(participant):
     pictures = random.sample(os.listdir(os.path.join(os.getcwd(),'static','images',participant.Preferred_gender)), app.config['N_PROFILES']) #selecting pictures sample based on preferred_gender
     bios_groups = bios.groupby('source')
     bios_randomized = {}
-    for g in bios_groups.groups:
-        bios_randomized[g] = bios_groups.get_group(g).sample(n=app.config['N_PROFILES'] // 2,replace=False,random_state=participant.ID*74*list(bios_groups.groups).index(g)) #selecting random subsets of bios for H and AI conditions (size N/2 each)
-    #.sample(n=app.config['N_PROFILES'] // 2,replace=False,random_state=participant.ID*74) #selecting random subsets of bios for H and AI conditions (size N/2 each)
+    bios_randomized['H'] = bios_groups.get_group('H').sample(n=app.config['N_PROFILES'] // 2,replace=False,random_state=participant.ID*74) #selecting a random sample of human-generated bios
+    bios_randomized['AI'] = bios_groups.get_group('AI')[~bios_groups.get_group('AI')['ID_Factset'].isin(bios_randomized['H']['ID_Factset'])].sample(n=app.config['N_PROFILES'] // 2,replace=False,random_state=participant.ID*108)#selecting a random sample of AI-generated bios among the bios, which have the different ID_Factset from those in bios_randomized['H']. This is done to ensure that all the selected AI-generated bios are created on the diffreent fact sets than those in bios_randomized['H'].
     h_ai_distribution = ['H','AI'] * (app.config['N_PROFILES'] // 2) 
     random.Random(participant.ID).shuffle(h_ai_distribution) #setting the order for profiles to show depending on condition
     condition_index = {'H':0, 'AI':0} #counter
