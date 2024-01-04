@@ -13,6 +13,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = os.getenv("SECRET_KEY")
 app.config['N_PROFILES'] = int(os.getenv("N_PROFILES"))
 app.config['PROMPTS_MAX_OCCURENCE'] = int(os.getenv("PROMPTS_MAX_OCCURENCE"))
+app.config['PROLIFIC_URL'] = os.getenv("PROLIFIC_URL")
 
 db = db
 db.init_app(app)
@@ -41,7 +42,7 @@ def build_profiles_set(participant):
         profile_entry = Profile( #create profile instance for the db
                 ID_Bio=bio,
                 ID_Name=name,
-                Age=random.randrange(20, 30), #randomly select age between 20 and 30
+                Age=random.randrange(25, 35), #randomly select age between 25 and 35
                 Picture=picture,
                 Source=condition)
         participant.profiles.append(profile_entry)
@@ -70,6 +71,7 @@ def build_profiles_set(participant):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
+        session['is_prolific'] = request.args.get('is_prolific') == 'true'
         return render_template('index.html', data={'N_profiles':app.config['N_PROFILES']})
 
     # Render the index template (this will be executed for both GET and POST requests)
@@ -97,7 +99,8 @@ def create_participant():
                         Duration_use = data['duration'],
                         Frequency_use = data['frequency'],
                         Goals = data['goals'],
-                        Most_successful_experience = data['online_dating_experience']
+                        Most_successful_experience = data['online_dating_experience'],
+                        Is_Prolific = session['is_prolific']
             )
             db.session.add(participant)
             db.session.commit()
@@ -169,7 +172,7 @@ def submit_ratings():
             else:
                 participant.Finished_at = datetime.utcnow()
                 db.session.commit()
-                return render_template('end.html')
+                return render_template('end.html', is_prolific=participant.Is_Prolific, prolific_url=app.config['PROLIFIC_URL'])
         elif request.form['to'] == 'Previous':
             if session['current_n'] > 0:
                 session['current_n'] = session['current_n'] - 1

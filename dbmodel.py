@@ -48,6 +48,7 @@ class Participant(db.Model):
     Goals = db.Column(db.Text)
     Most_successful_experience = db.Column(db.Text)
     Finished_at = db.Column(db.DateTime)
+    Is_Prolific = db.Column(db.Boolean)
 
 
 

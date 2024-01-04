@@ -65,6 +65,8 @@
     <p><strong>Do you want to discuss this research?</strong></p>
     <p>If you have any further questions or would like additional information about the research findings, please feel free to contact us by email k.palenov@student.vu.nl. Your participation has been instrumental, and we appreciate your time and contribution.</p>
 </div>
-
+{% if is_prolific %}
+<button type="button" class="button" onclick="window.location.href='{{ prolific_url }}'">Redirect back to Prolific</button>
+{% endif %}
 </body>
 </html>
