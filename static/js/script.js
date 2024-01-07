@@ -157,6 +157,6 @@ function submitRatings(direction){
 //   }
 
 
-document.addEventListener('DOMContentLoaded', function() {
-    handleSwipe();
-});
+// document.addEventListener('DOMContentLoaded', function() {
+//     handleSwipe();
+// });
