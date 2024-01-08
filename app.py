@@ -42,7 +42,7 @@ def build_profiles_set(participant):
         profile_entry = Profile( #create profile instance for the db
                 ID_Bio=bio,
                 ID_Name=name,
-                Age=random.randrange(25, 35), #randomly select age between 25 and 35
+                Age=random.randrange(25, 30), #randomly select age between 25 and 30
                 Picture=picture,
                 Source=condition)
         participant.profiles.append(profile_entry)
