@@ -2,6 +2,8 @@
 Welcome to the Mock Dating App repository! This project was developed as a tool for collecting data for my Master's thesis for a degree in Social Sciences for a Digital Society at the Vrije Universiteit Amsterdam.
 The app simulates a simplified version of a dating platform, allowing users to assess a randomly complied set of dating profiles based on their authenticity, attraciveness, and trustworthiness.
 
+The frontend code was developed by ChatGPT.
+
 # Procedure
 Upon accessing the app, users will be prompted to fill out a short registration form.
 After registration, users will be directed to the swiping session interface.
